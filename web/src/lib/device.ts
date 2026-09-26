@@ -1,5 +1,5 @@
 import type {Ward} from './model';
-type NativeBridge={loadWard:()=>string;saveWard:(json:string)=>boolean;exportFile:(name:string,mime:string,data:string)=>boolean};
+type NativeBridge={loadWard:()=>string;saveWard:(json:string)=>boolean;exportFile:(name:string,mime:string,data:string)=>boolean;setDarkMode?:(dark:boolean)=>void;isSystemDark?:()=>boolean};
 declare global{interface Window{NicuDevice?:NativeBridge}}
 const KEY='nicu-work-en-v1';
 export function loadWard():string|null{const raw=window.NicuDevice?window.NicuDevice.loadWard():localStorage.getItem(KEY);if(raw==='!READ_ERROR')throw Error('Could not read device record');return raw||null;}
