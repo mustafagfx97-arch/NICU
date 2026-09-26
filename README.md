@@ -61,3 +61,13 @@ The calculation suite covers all supplied standard and restricted examples, spli
 - DailyMed: vancomycin, caffeine citrate, AmBisome, and ceftriaxone product labels (links in the app).
 - CDC injection-safety guidance (link in the app).
 - Reference review date: 26 September 2026. Actual product labeling and the local approved protocol remain authoritative.
+
+## Appearance and installable test APK — v1.0.1
+
+The Android interface is English-only. Use the Appearance control in the header to select **Light**, **Dark**, or **System**. The setting is saved separately from ward records, and System follows Android appearance changes. The native navigation bar also follows the active mode. Printed PDF reports stay white.
+
+The Actions artifact now contains:
+- `NICU-Work-1.0.1-debug-installable.apk` — signed with an Android debug key and installable for testing.
+- `NICU-Work-1.0.1-release-unsigned.apk` — requires private production signing; do not attempt to install it directly.
+
+**The debug APK is not a production release** and will not update a different-signature app in place. A stable private release keystore is necessary before public distribution. Export a JSON backup before uninstalling or changing app signatures. Never commit real patient records or keystores to this public repository.

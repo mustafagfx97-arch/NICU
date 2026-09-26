@@ -38,6 +38,7 @@ public final class MainActivity extends Activity {
     private static final int IMPORT_FILE = 701, EXPORT_FILE = 702;
     private static final String ORIGIN = "appassets.androidplatform.net";
     private WebView web;
+    private FrameLayout root;
     private AtomicFile record;
     private ValueCallback<Uri[]> fileChooser;
     private volatile byte[] exportBytes;
@@ -53,7 +54,7 @@ public final class MainActivity extends Activity {
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         record = new AtomicFile(new File(getFilesDir(), "ward-record.json"));
-        FrameLayout root = new FrameLayout(this);
+        root = new FrameLayout(this);
         root.setBackgroundColor(Color.rgb(16,62,87));
         web = new WebView(this);
         web.setBackgroundColor(Color.rgb(241,245,248));
@@ -112,6 +113,19 @@ public final class MainActivity extends Activity {
     }
 
     public final class DeviceBridge {
+        @JavascriptInterface public boolean isSystemDark() {
+            return (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)==Configuration.UI_MODE_NIGHT_YES;
+        }
+        @JavascriptInterface public void setDarkMode(boolean dark) {
+            runOnUiThread(()->{
+                if(root!=null)root.setBackgroundColor(dark?Color.rgb(11,23,35):Color.rgb(16,62,87));
+                if(web!=null)web.setBackgroundColor(dark?Color.rgb(17,27,39):Color.rgb(241,245,248));
+                getWindow().setNavigationBarColor(dark?Color.rgb(11,23,35):Color.rgb(241,245,248));
+                int mask=android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+                int flags=getWindow().getDecorView().getSystemUiVisibility();
+                getWindow().getDecorView().setSystemUiVisibility(dark?flags&~mask:flags|mask);
+            });
+        }
         @JavascriptInterface public synchronized String loadWard() {
             if(!record.getBaseFile().exists()) return "";
             try { return new String(record.readFully(),StandardCharsets.UTF_8); }
@@ -167,6 +181,10 @@ public final class MainActivity extends Activity {
     }
     @Override public void onBackPressed() {
         web.evaluateJavascript("(function(){var d=document.querySelector('[role=dialog],[role=alertdialog]');if(d){document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',code:'Escape',bubbles:true}));return true;}return false;})()",handled->{if(!"true".equals(handled))MainActivity.super.onBackPressed();});
+    }
+    @Override public void onConfigurationChanged(Configuration c) {
+        super.onConfigurationChanged(c);
+        if(web!=null)web.evaluateJavascript("window.dispatchEvent(new Event('nicu-system-theme-changed'));",null);
     }
     @Override protected void onDestroy() {
         if(fileChooser!=null){fileChooser.onReceiveValue(null);fileChooser=null;}

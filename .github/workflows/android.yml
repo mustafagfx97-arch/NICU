@@ -31,16 +31,18 @@ jobs:
       - name: Build bundled English interface
         run: npm run build
       - name: Build and lint Android release
-        run: gradle -p android lintRelease assembleRelease --no-daemon
-      - name: Prepare unsigned APK for private signing
+        run: gradle -p android lintRelease assembleRelease assembleDebug --no-daemon
+      - name: Prepare installable debug and unsigned production APKs
         run: |
           mkdir -p artifacts
-          cp android/app/build/outputs/apk/release/app-release-unsigned.apk artifacts/NICU-Work-1.0.0-unsigned.apk
+          cp android/app/build/outputs/apk/release/app-release-unsigned.apk artifacts/NICU-Work-1.0.1-release-unsigned.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk artifacts/NICU-Work-1.0.1-debug-installable.apk
           build_tools="$ANDROID_HOME/build-tools/35.0.0"
-          "$build_tools/zipalign" -c -P 16 -v 4 artifacts/NICU-Work-1.0.0-unsigned.apk > artifacts/alignment.txt
+          "$build_tools/zipalign" -c -P 16 -v 4 artifacts/NICU-Work-1.0.1-release-unsigned.apk > artifacts/alignment.txt
+          "$build_tools/apksigner" verify --verbose artifacts/NICU-Work-1.0.1-debug-installable.apk
           cp "$build_tools/lib/apksigner.jar" artifacts/apksigner.jar
           cp package-lock.json artifacts/package-lock.json
-          sha256sum artifacts/NICU-Work-1.0.0-unsigned.apk > artifacts/unsigned-sha256.txt
+          sha256sum artifacts/NICU-Work-1.0.1-release-unsigned.apk artifacts/NICU-Work-1.0.1-debug-installable.apk > artifacts/apk-sha256.txt
       - uses: actions/upload-artifact@v4
         with:
           name: NICU-Work-Android
