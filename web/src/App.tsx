@@ -1,6 +1,6 @@
 'use client';
 import React,{useState,useEffect,useRef,useMemo} from 'react';
-import {Droplets,Plus,FileDown,Users,Building2,Package,FlaskConical,Check,ChevronLeft,Trash2,Pencil,BookOpen,ClipboardList,Info,Download,Upload,Calculator,ShieldCheck,AlertTriangle,RefreshCw,Search} from 'lucide-react';
+import {Droplets,Plus,FileDown,Users,Building2,Package,FlaskConical,Check,ChevronLeft,Trash2,Pencil,BookOpen,ClipboardList,Info,Download,Upload,Calculator,ShieldCheck,AlertTriangle,RefreshCw,Search,Sun,Moon,Monitor} from 'lucide-react';
 import {Tabs,TabsList,TabsTrigger,TabsContent} from '@/components/ui/tabs';
 import {Dialog,DialogContent,DialogTitle,DialogDescription} from '@/components/ui/dialog';
 import {AlertDialog,AlertDialogContent,AlertDialogTitle,AlertDialogDescription,AlertDialogFooter,AlertDialogCancel,AlertDialogAction} from '@/components/ui/alert-dialog';
@@ -16,6 +16,10 @@ import {wardSchema} from '@/lib/validation';
 import {makeReport,download} from '@/lib/pdf';
 import {loadWard,saveWard,exportNativeFile} from '@/lib/device';
 const initial:Ward={schema:1,title:'NICU Ward',date:'',rooms:[]};
+type ThemeMode='light'|'dark'|'system';
+const THEME_KEY='nicu-work-theme-v1';
+function savedTheme():ThemeMode {try {const x=localStorage.getItem(THEME_KEY);return x==='dark'||x==='light'||x==='system'?x:'system';}catch{return 'system';}}
+function systemDark():boolean {try {return window.NicuDevice?.isSystemDark?.()??window.matchMedia('(prefers-color-scheme: dark)').matches;}catch{return false;}}
 function Pick({value,onChange,options,label}:{value:string;onChange:(v:string)=>void;options:{value:string;label:string}[];label:string}){return <Select dir="ltr" value={value} onValueChange={onChange}><SelectTrigger className="pick" aria-label={label}><SelectValue/></SelectTrigger><SelectContent>{options.map(o=><SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent></Select>;}
 function Numeric({label,value,onChange,unit,id}:{label:string;value:string;onChange:(s:string)=>void;unit?:string;id:string}){return <label className="field" htmlFor={id}><span>{label}</span><div className="number-field"><input id={id} dir="ltr" inputMode="decimal" value={value} onChange={e=>onChange(e.target.value)} autoComplete="off" placeholder="0"/><bdi>{unit}</bdi></div></label>;}
 function Result({order,compact=false}:{order:Order;compact?:boolean}){const c=calculate(order);if(!c.ok)return <div className="result-empty"><Calculator size={28}/><b>Preparation result</b>{order.dose?c.errors.map(e=><p className="error-text" key={e}>{e}</p>):<p>Enter the prescribed single dose to calculate the withdrawal and diluent volumes.</p>}</div>;return <div className={'result '+(compact?'compact':'')} aria-live="polite"><div className="result-heading"><span>Calculated preparation</span><span className={'tag '+(order.verified?'good':'')}>{order.verified?'Reviewed':'Draft calculation'}</span></div>{c.batches.map((b,i)=><div className="batch" key={i}><div className="batch-title">Microdrip {i+1}<span>{b.doses} dose(s) · factor <bdi>{fmt(b.factor)}</bdi></span></div><div className="draw-number"><strong dir="ltr">{fmt(b.draw)}</strong><bdi>mL</bdi></div><div className="draw-label">Withdraw from {order.sourceContainer?'intermediate stock':'vial / ampoule'}</div><div className="result-lines"><p><span>Add <bdi>{order.diluent}</bdi></span><bdi>{fmt(b.diluent)} mL</bdi></p><p><span>Final volume</span><bdi>{fmt(b.finalMl)} mL</bdi></p><p><span>Volume given per dose</span><bdi>{order.doseMl} mL</bdi></p></div></div>)}<div className="result-foot"><b>{c.adminSets+c.sourceSets} microdrip(s)</b><span>{c.adminSets} administration + {c.sourceSets} stock</span><b>{c.vials} new vial(s) / ampoule(s)</b></div>{!compact&&<><p className="fine">Prescribed amount: <bdi>{fmt(c.doseTotal)} {order.unit}</bdi><br/>Dead-space allowance: <bdi>{fmt(c.deadAmount)} {order.unit}</bdi> — not an extra patient dose.</p>{c.warnings.map(w=><p className="small-warning" key={w}>{w}</p>)}</>}</div>;}
@@ -40,6 +44,23 @@ export default function WardApp(){
  const [ward,setWard]=useState<Ward>(initial),[loaded,setLoaded]=useState(false),[mode,setMode]=useState('loading'),[selected,setSelected]=useState(''),[tab,setTab]=useState('ward');
  const [editor,setEditor]=useState<{patient?:Patient;order?:Order;quick?:boolean}|null>(null),[entry,setEntry]=useState<{type:'room'|'patient';id?:string;name:string;bed:string}|null>(null),[confirm,setConfirm]=useState<{title:string;text:string;action:()=>void}|null>(null),[pdfBusy,setPdfBusy]=useState(false),[refQuery,setRefQuery]=useState('');
  const [pdfReady,setPdfReady]=useState<{url:string;name:string}|null>(null);
+ const [theme,setTheme]=useState<ThemeMode>(savedTheme),[osDark,setOsDark]=useState(systemDark);
+ const activeTheme=theme==='system'?(osDark?'dark':'light'):theme;
+ useEffect(()=>{
+  const media=window.matchMedia('(prefers-color-scheme: dark)');
+  const update=()=>setOsDark(systemDark());
+  media.addEventListener?.('change',update);
+  window.addEventListener('nicu-system-theme-changed',update);
+  return ()=>{media.removeEventListener?.('change',update);window.removeEventListener('nicu-system-theme-changed',update);};
+ },[]);
+ useEffect(()=>{
+  document.documentElement.dataset.theme=activeTheme;
+  document.documentElement.classList.toggle('dark',activeTheme==='dark');
+  document.documentElement.style.colorScheme=activeTheme;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content',activeTheme==='dark'?'#0b1723':'#103e57');
+  try{localStorage.setItem(THEME_KEY,theme);}catch{}
+  window.NicuDevice?.setDarkMode?.(activeTheme==='dark');
+ },[theme,activeTheme]);
  useEffect(()=>()=>{if(pdfReady)URL.revokeObjectURL(pdfReady.url);},[pdfReady]);
  const revision=useRef(0),loadedRef=useRef(false),modeRef=useRef('loading'),wardRef=useRef(ward),pending=useRef<Ward|null>(null),saving=useRef(false),fileInput=useRef<HTMLInputElement>(null);wardRef.current=ward;modeRef.current=mode;
  const sum=useMemo(()=>summarize(ward),[ward]),room=ward.rooms.find(r=>r.id===selected)??ward.rooms[0];
@@ -56,7 +77,7 @@ export default function WardApp(){
  async function backup(){try{const blob=new Blob([JSON.stringify(ward,null,2)],{type:'application/json'}),name=`NICU_Backup_${ward.date}.json`;if(!await exportNativeFile(blob,name))download(blob,name);}catch{toast.error('Could not export the backup.');}}
  async function restore(file:File|undefined){if(!file)return;try{if(file.size>1500000)throw Error();const next=wardSchema.parse(JSON.parse(await file.text()));setConfirm({title:'Restore ward backup?',text:'This replaces the current rooms and patients. Export your current backup first if you need to keep it.',action:()=>{setWard(next);setSelected(next.rooms[0]?.id??'');}});}catch{toast.error('The backup is invalid or exceeds the size limit.');}if(fileInput.current)fileInput.current.value='';}
  const example={...newOrder(),dose:'50'};
- return <div className="app"><Toaster dir="ltr" position="bottom-center" theme="light"/><header className="app-header"><div className="brand"><span className="brand-icon"><Droplets/></span><div><h1>NICU Work</h1><p dir="ltr">NICU WORK</p></div></div><div className="header-actions"><span className="private-mark"><ShieldCheck size={16}/> On-device records</span><button className="btn export" disabled={!sum.orders||pdfBusy} onClick={pdf}><FileDown size={18}/>{pdfBusy?'Creating PDF…':'Ward PDF'}</button></div></header>
+ return <div className="app"><Toaster dir="ltr" position="bottom-center" theme={activeTheme}/><header className="app-header"><div className="brand"><span className="brand-icon"><Droplets/></span><div><h1>NICU Work</h1><p dir="ltr">NICU WORK</p></div></div><div className="header-actions"><label className="theme-control">{activeTheme==='dark'?<Moon size={16}/>:theme==='system'?<Monitor size={16}/>:<Sun size={16}/>}<select value={theme} onChange={e=>setTheme(e.target.value as ThemeMode)} aria-label="Appearance"><option value="light">Light</option><option value="dark">Dark</option><option value="system">System</option></select></label><span className="private-mark"><ShieldCheck size={16}/> On-device records</span><button className="btn export" disabled={!sum.orders||pdfBusy} onClick={pdf}><FileDown size={18}/>{pdfBusy?'Creating PDF…':'Ward PDF'}</button></div></header>
  <main className="workspace"><div className="work-heading"><div><p className="eyebrow">DAILY PREPARATION RECORD</p><input aria-label="Ward name" className="ward-title" value={ward.title} maxLength={120} onChange={e=>setWard(w=>({...w,title:e.target.value}))}/><p className="muted">Prescribed doses, preparation volumes and ward supplies.</p></div><div className="date-and-save"><label>Work date<input aria-label="Work date" type="date" value={ward.date} onChange={e=>{if(e.target.value)setWard(w=>({...w,date:e.target.value}));}}/></label><span className={'save-status '+(['error','conflict','loaderror'].includes(mode)?'error-text':'')}>{mode==='saved'?<><Check size={14}/> Saved on device</>:mode==='saving'?'Saving…':mode==='demo'?'Preview only':mode==='loading'?'Loading records…':mode==='conflict'?'Newer version found':mode==='loaderror'?'Could not load records':'Changes not saved'}</span></div></div>
  {['error','loaderror'].includes(mode)&&<div className="storage-banner"><AlertTriangle size={19}/><div>{mode==='loaderror'?'Could not load the saved record. Retry before adding data.':'Changes could not be saved. Export a backup before closing.'}</div><button className="btn small" onClick={()=>mode==='loaderror'?void load():void persist(ward)}>Retry</button></div>}
  <div className="metrics"><div><Building2/><span>Rooms</span><strong>{ward.rooms.length}</strong></div><div><Users/><span>Patients</span><strong>{sum.patients}</strong></div><div className="highlight"><Droplets/><span>Microdrip <small>administration + stock</small></span><strong>{sum.sets}</strong></div><div><Package/><span>Vials / ampoules <small>separate preparations</small></span><strong>{sum.vials}</strong></div></div>
