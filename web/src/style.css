@@ -53,3 +53,56 @@
 body{font-family:Arial,Helvetica,sans-serif;line-height:1.55}.app{min-height:100dvh}.field,.small-warning,.check-row{font-size:.9rem}.drug-note{font-size:.875rem}.app-footer p,.tag{font-size:.8rem}.date-and-save{text-align:right}.example-panel>h3{text-align:left}.btn{touch-action:manipulation}.icon-btn{min-width:40px;min-height:40px}.ward-title{width:100%;font-size:1.7rem}.work-heading>div:first-child{flex:1;min-width:0}.order-name>span{overflow-wrap:anywhere}.result-heading{flex-wrap:wrap}.order-dialog{overscroll-behavior:contain}[data-slot=dialog-content]{overflow-x:hidden}
 @media(max-width:760px){.workspace{padding:18px 14px}.app-header{padding:16px 14px}.brand h1{font-size:1.1rem}.main-tabs [role=tab]{font-size:.875rem}.main-tabs svg{display:none}.metrics span{font-size:.875rem}.metrics small{font-size:.75rem}.field,.pick{font-size:.875rem!important}.patient-name small,.order-counts,.tag{font-size:.75rem}.order-dialog{width:calc(100% - 14px)!important;max-height:96dvh}.two-col{gap:10px}.result-side .fine,.small-warning{font-size:.8rem}.patient-heading{flex-wrap:wrap}.patient-heading>.inline-actions{margin-left:auto}.room-heading{flex-wrap:wrap}.private-mark{display:none}}
 @media(max-width:380px){.two-col{grid-template-columns:1fr}.metrics>div{padding:12px 9px}.metrics svg{display:none}.header-actions .btn{font-size:.8rem;padding:8px}.brand{gap:8px}.brand-icon{width:38px;height:38px}}
+
+
+/* Light, dark, and system modes: presentation only; ward arithmetic is unchanged. */
+.theme-control{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid #ffffff52;border-radius:9px;background:#ffffff14;color:white;white-space:nowrap}
+.theme-control select{background:transparent;color:inherit;border:0;outline-offset:3px;max-width:88px;min-height:31px;font:inherit;font-weight:700;font-size:.82rem;cursor:pointer}
+.theme-control option{background:#fff;color:#183e54}
+:root[data-theme=dark]{color-scheme:dark;--background:#16212d;--foreground:#e7f0f5;--card:#1d2d3b;--card-foreground:#e7f0f5;--popover:#20303f;--popover-foreground:#e7f0f5;--primary:#69d6c8;--primary-foreground:#0d252a;--secondary:#273c4b;--secondary-foreground:#e5f0f5;--muted:#20303e;--muted-foreground:#a8bbc9;--accent:#233f43;--accent-foreground:#b1f1e5;--destructive:#fa8e94;--border:#395062;--input:#456074;--ring:#85e1d7}
+:root[data-theme=dark] body{background:#111b27;color:#e7f0f5}
+:root[data-theme=dark] .app-header{background:#0b1723}
+:root[data-theme=dark] .theme-control{background:#253c4b;border-color:#527082}
+:root[data-theme=dark] .theme-control option{background:#20303f;color:#e7f0f5}
+:root[data-theme=dark] .btn:not(.primary):not(.export),:root[data-theme=dark] .room-pill,:root[data-theme=dark] .icon-btn{background:#253747;border-color:#435e70;color:#e1eff5}
+:root[data-theme=dark] .btn:not(.primary):not(.export):hover,:root[data-theme=dark] .room-pill:hover,:root[data-theme=dark] .icon-btn:hover{background:#314a5c}
+:root[data-theme=dark] .btn.primary{background:#238e83;border-color:#238e83;color:#fff}
+:root[data-theme=dark] .btn.primary:hover{background:#2aa99b}
+:root[data-theme=dark] .ward-title{color:#f0f7fa}
+:root[data-theme=dark] .date-and-save input{background:#223342;color:#f0f7fa;border-color:#466075}
+:root[data-theme=dark] .metrics>div,:root[data-theme=dark] .empty-work,:root[data-theme=dark] .patient-card,:root[data-theme=dark] .section-card,:root[data-theme=dark] .empty-patients{background:#1b2a38;color:#e8f1f5;border-color:#354c5d}
+:root[data-theme=dark] .metrics .highlight{background:#174c58;color:#f3fffd;border-color:#347881}
+:root[data-theme=dark] .metrics .highlight svg,:root[data-theme=dark] .metrics .highlight small{color:#a5efe3}
+:root[data-theme=dark] .main-tabs{border-color:#395568}
+:root[data-theme=dark] .main-tabs [role=tab]{color:#b3c6d2}
+:root[data-theme=dark] .main-tabs [role=tab][data-state=active]{color:#83e4d7;border-bottom-color:#69d6c8}
+:root[data-theme=dark] .room-pill.selected{background:#1a4d51;border-color:#67caba;color:#d9fff7}
+:root[data-theme=dark] .room-pill small,:root[data-theme=dark] .patient-number,:root[data-theme=dark] .empty-icon{background:#2a4050;color:#c7dce6;border-color:#435d6e}
+:root[data-theme=dark] .patient-heading{background:#213242;border-color:#354d5e}
+:root[data-theme=dark] .order-row,:root[data-theme=dark] .order-result,:root[data-theme=dark] .drug-reference details{border-color:#354d5e}
+:root[data-theme=dark] .order-row.invalid{background:#3d2c31}
+:root[data-theme=dark] .empty-order{background:#1b2a38;color:#b9ccd7}
+:root[data-theme=dark] .empty-order:hover{background:#273d4c}
+:root[data-theme=dark] .example-panel,:root[data-theme=dark] .supply-breakdown,:root[data-theme=dark] .fluids,:root[data-theme=dark] .source-box,:root[data-theme=dark] .result-empty,:root[data-theme=dark] .reference-search{background:#223443;color:#e2eef4;border-color:#3b5365}
+:root[data-theme=dark] .result{background:#163c3d;border-color:#39736c;color:#d6fff5}
+:root[data-theme=dark] .batch{border-color:#3a706a}
+:root[data-theme=dark] .tag{background:#513f29;color:#ffe0a3}
+:root[data-theme=dark] .tag.good{background:#184d3a;color:#a8f8cf}
+:root[data-theme=dark] .info-banner,:root[data-theme=dark] .drug-note{background:#253b4b;border-color:#435f73;color:#cde2ee}
+:root[data-theme=dark] .notice,:root[data-theme=dark] .storage-banner{background:#483a28;border-color:#736044;color:#ffdfa6}
+:root[data-theme=dark] .drug-note.red{background:#4b2c33;border-color:#8e4d55}
+:root[data-theme=dark] .review{background:#1c423d}
+:root[data-theme=dark] .formula-box{background:#102938}
+:root[data-theme=dark] .references,:root[data-theme=dark] .app-footer,:root[data-theme=dark] .dialog-top{border-color:#385264}
+:root[data-theme=dark] th{background:#293c4d!important;color:#c6d9e5!important}
+:root[data-theme=dark] td{border-color:#385264!important}
+:root[data-theme=dark] .field input,:root[data-theme=dark] .field textarea,:root[data-theme=dark] .number-field,:root[data-theme=dark] .drug-picker,:root[data-theme=dark] .pick,:root[data-theme=dark] .reference-search input,:root[data-theme=dark] [data-slot=input-group]{background:#192a38!important;color:#f0f6f8!important;border-color:#4a6475}
+:root[data-theme=dark] input::placeholder,:root[data-theme=dark] textarea::placeholder{color:#a4b9c7}
+:root[data-theme=dark] [data-slot=dialog-content],:root[data-theme=dark] [data-slot=alert-dialog-content],:root[data-theme=dark] [data-slot=popover-content],:root[data-theme=dark] [data-slot=select-content],:root[data-theme=dark] .name-dialog,:root[data-theme=dark] .drug-popup{background:#1c2c3a!important;color:#ecf4f8!important;border-color:#435c70}
+:root[data-theme=dark] [data-slot=select-item]:focus,:root[data-theme=dark] [cmdk-item][data-selected=true]{background:#2d5057!important;color:#f2fffb!important}
+:root[data-theme=dark] .editor-actions{background:#1c2c3a}
+:root[data-theme=dark] .small-warning{color:#ffd29b}
+:root[data-theme=dark] small,:root[data-theme=dark] .fine,:root[data-theme=dark] .muted,:root[data-theme=dark] .eyebrow,:root[data-theme=dark] .save-status,:root[data-theme=dark] .empty-copy p,:root[data-theme=dark] .example-panel>p,:root[data-theme=dark] .room-heading p,:root[data-theme=dark] .patient-name small,:root[data-theme=dark] .order-name>span,:root[data-theme=dark] .order-counts,:root[data-theme=dark] .result-empty{color:#b1c5d1}
+:root[data-theme=dark] a,:root[data-theme=dark] .text-button{color:#85e5d9}
+:root[data-theme=dark] .error-text{color:#ff929b!important}
+@media(max-width:760px){.header-actions{gap:7px}.theme-control{padding:3px 5px;gap:3px}.theme-control select{max-width:73px;font-size:.75rem}.theme-control svg{width:14px}.btn.export{font-size:.73rem;padding:7px 8px}.brand p{display:none}}
